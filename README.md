@@ -12,3 +12,7 @@ Back‑end: Hardhat.
 Serverless functions: Netlify.
 
 MIT licensed – extend at will.
+# auToBooN
+phi-fan Golden NFT BLo0M!
+
+c7a7f957e5e821a16f6cfa88633ca8c7b10668d9
