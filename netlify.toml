@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build --prefix frontend"
+  publish = "frontend/dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  RPC_URL = "https://polygon-rpc.com"
+  CONTRACT_ADDRESS = "REPLACE"
+  NFT_STORAGE_KEY = "REPLACE"
+  PRIVATE_KEY = "REPLACE"
+  TREASURY_ADDRESS = "REPLACE"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
