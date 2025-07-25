@@ -8,9 +8,12 @@ contract KaPt1NGold is ERC721URIStorage, Ownable {
     address public treasury;
     uint256 public goldCount;
 
-    constructor(address _treasury) ERC721("KaPt1N Gold","KGOLD") {
-        treasury = _treasury;
-    }
+    constructor(address _treasury) 
+    ERC721("KaPt1N Gold", "KGOLD") 
+    Ownable(msg.sender) 
+{
+    treasury = _treasury;
+}
 
     function mintToTreasury(uint256 linkedId) external returns (uint256){
         goldCount++;

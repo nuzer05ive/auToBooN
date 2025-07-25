@@ -12,9 +12,12 @@ contract AutoBooNPetal is ERC721URIStorage, Ownable {
     uint256 public tokenCount;
     address public goldContract;
 
-    constructor(address _gold) ERC721("AutoBooN Petal","PETAL") {
-        goldContract = _gold;
-    }
+    constructor(address _gold) 
+    ERC721("AutoBooN Petal", "PETAL") 
+    Ownable(msg.sender) 
+{
+    goldContract = _gold;
+}
 
     function mint(address to,string memory uri) external onlyOwner returns(uint256){
         tokenCount++;
