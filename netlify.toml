@@ -1,8 +1,13 @@
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+  framework = "vite"
+  publish = "frontend/dist"
+
 [build]
-  base = "frontend"
-  command = "npm run build"
-  publish = "dist"
-  functions = "../netlify/functions"
+  command = "npm run build --prefix frontend"
+  publish = "frontend/dist"
+  functions = "netlify/functions"
 
 [build.environment]
   RPC_URL = "https://polygon-rpc.com"
