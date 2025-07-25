@@ -1,7 +1,8 @@
 [build]
-  command = "npm run build --prefix frontend"
-  publish = "frontend/dist"
-  functions = "netlify/functions"
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+  functions = "../netlify/functions"
 
 [build.environment]
   RPC_URL = "https://polygon-rpc.com"
