@@ -17,6 +17,11 @@
   TREASURY_ADDRESS = "0xe4DCDA425ED17D5439B83AfFBa6C91a509E36b84"
 
 [[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
