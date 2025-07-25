@@ -1,52 +1,64 @@
 const { ethers } = require("ethers");
-const { NFTStorage, File } = require("nft.storage");
+const { NFTStorage } = require("nft.storage");
 
-// Main Netlify handler
 exports.handler = async (event) => {
   try {
-    // 1. Parse the request
-    const { name, description, imageCID } = JSON.parse(event.body);
+    // Parse request body
+    const { name, description, imageCID } = JSON.parse(event.body || "{}");
 
-    // 2. Check envs and log for debugging (will show in Netlify logs)
-    if (!process.env.NFT_STORAGE_KEY || !process.env.PRIVATE_KEY || !process.env.RPC_URL || !process.env.CONTRACT_ADDRESS) {
-      console.error("Missing one or more env vars:", {
-        NFT_STORAGE_KEY: !!process.env.NFT_STORAGE_KEY,
-        PRIVATE_KEY: !!process.env.PRIVATE_KEY,
-        RPC_URL: !!process.env.RPC_URL,
-        CONTRACT_ADDRESS: !!process.env.CONTRACT_ADDRESS,
-      });
-      return { statusCode: 500, body: "Server config error: Missing environment variables" };
+    // Validate required fields
+    if (!name || !description || !imageCID) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing required fields." }),
+      };
     }
-    console.log("NFT_STORAGE_KEY exists:", !!process.env.NFT_STORAGE_KEY);
+
+    // Ensure all env vars are set
+    const { NFT_STORAGE_KEY, RPC_URL, PRIVATE_KEY, CONTRACT_ADDRESS } = process.env;
+    if (!NFT_STORAGE_KEY || !RPC_URL || !PRIVATE_KEY || !CONTRACT_ADDRESS) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Missing required environment variables." }),
+      };
+    }
+
+    // Log for debugging (will show in Netlify deploy logs)
+    console.log("NFT_STORAGE_KEY exists:", !!NFT_STORAGE_KEY);
     console.log("imageCID:", imageCID);
 
-    // 3. Upload metadata to IPFS (NFT.storage)
-    const nft = new NFTStorage({ token: process.env.NFT_STORAGE_KEY });
+    // Mint metadata (no file upload, just reference image by CID)
+    const nft = new NFTStorage({ token: NFT_STORAGE_KEY });
     const meta = await nft.store({
       name,
       description,
-      image: new File([], imageCID, { type: "image/png" }),
+      image: `ipfs://${imageCID}`,
     });
 
+    // Get metadata URL
     const uri = meta.url;
-    console.log("NFT metadata URI:", uri);
+    console.log("Stored metadata:", uri);
 
-    // 4. Connect to Ethereum and contract
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-    const abi = [ "function mint(address to, string uri) external returns(uint256)" ];
-    const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
+    // Set up Ethers and contract
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    const abi = [
+      "function mint(address to, string uri) external returns (uint256)"
+    ];
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, wallet);
 
-    // 5. Mint NFT
+    // Mint NFT
     const tx = await contract.mint(wallet.address, uri);
     await tx.wait();
 
-    // 6. Return success
+    // Return success
     return {
       statusCode: 200,
       body: JSON.stringify({ txHash: tx.hash, tokenURI: uri }),
     };
+
   } catch (err) {
+    // Print stack trace to logs for debugging
     console.error("Mint failed:", err);
     return {
       statusCode: 500,
