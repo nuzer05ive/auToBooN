@@ -1,8 +1,12 @@
 {
-  "name": "autoboon-upgrade-monorepo",
+  "name": "autoboon-upgrade",
+  "version": "1.0.0",
   "private": true,
   "workspaces": [
     "frontend"
   ],
-  "license": "ISC"
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "nft.storage": "^7.2.0"
+  }
 }
